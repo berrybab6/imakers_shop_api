@@ -20,20 +20,3 @@ urlpatterns = [
     path('api-auth/', include('rest_framework.urls'))
 
 ]
-# CREATE function get_full_name(_first_name character varying, _last_name character varying)
-#     returns character varying 
-#     LANGUAGE plpgsql
-# AS 
-# $$
-# declare
-#     fullname character varying;
-# Begin
-#     select concat(us.first_name, ' ', us.last_name) into fullname
-#     from users us
-#     where us.first_name=_first_name and us.last_name=_last_name;
-
-
-#     return fullname;
-# end;
-# $$;
-  
