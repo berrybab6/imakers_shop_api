@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'account.apps.AccountConfig',
+    'vendor.apps.VendorConfig',
 
 ]
 
@@ -53,6 +54,7 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'shop.urls'
+AUTH_USER_MODEL = 'account.User'
 
 TEMPLATES = [
     {
