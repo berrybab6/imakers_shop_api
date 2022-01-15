@@ -1,6 +1,8 @@
 from email.mime import image
 from django.db import models
 
+from shop import settings
+
 
 class Shop(models.Model):
     name = models.CharField(max_length=200)
