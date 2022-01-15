@@ -1,7 +1,10 @@
 from pyexpat import model
 from django.db import models
 from django.contrib.auth.models import (AbstractUser, BaseUserManager)
-
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.conf import settings
+from rest_framework.authtoken.models import Token
 # Create your models here.
 
 
@@ -27,7 +30,7 @@ class Role(models.Model):
 
 class UserManager(BaseUserManager):
 
-    def create_user(self, username, full_name=None, gender=None, profile_url=None, reset_link=None,is_admin=False, is_customer=False,is_shop_owner=False,business_id=None, password=None, is_active=True,):
+    def create_user(self, username, full_name=None, gender=None, profile_url=None, reset_link=None,is_admin=False, is_staff=False,is_customer=False,is_shop_owner=False,business_id=None, password=None, is_active=True,):
         if not username:
             raise ValueError("User Must have an username")
         if not password:
@@ -43,6 +46,7 @@ class UserManager(BaseUserManager):
         user.reset_link = reset_link
         user.full_name = full_name
         user.shop_owner = is_shop_owner
+        user.staff = is_staff
         user.customer = is_customer
         user.admin = is_admin
         user.save(using=self._db)
@@ -50,7 +54,11 @@ class UserManager(BaseUserManager):
 
     def create_superuser(self, username,full_name=None, password=None, profile_url=None):
 
-        user = self.create_user(username, full_name=full_name,profile_url=profile_url, password=password,is_admin=True)
+        user = self.create_user(username, full_name=full_name,profile_url=profile_url, is_staff=True,password=password,is_admin=True)
+        return user
+    
+    def create_staffuser(self, username, full_name=None, password=None):
+        user = self.create_user(username, full_name=full_name, is_staff=True,password=password)
         return user
     def create_shop_owner(self, username, full_name=None, password=None, profile_url=None):
         user = self.create_user(username, full_name=full_name, password=password,profile_url=profile_url, is_shop_owner=True)
@@ -64,9 +72,11 @@ class User(AbstractUser):
     gender = models.CharField(max_length=6,null=True, blank=True)
     profile_url = models.CharField(max_length=255, null=True,default=False,blank=True)
 
+    staff = models.BooleanField(default=False)
     admin = models.BooleanField(default=False)
     shop_owner = models.BooleanField(default=False)
     customer = models.BooleanField(default=False)
+
     created_At = models.DateTimeField(auto_now_add=True)
     
     full_name = models.CharField(max_length=255, blank=True, null=True)
@@ -95,7 +105,14 @@ class User(AbstractUser):
     @property
     def is_shop_owner(self):
         return self.shop_owner
-    
+    @property
+    def is_staff(self):
+        return self.staff
     @property
     def is_admin(self):
         return self.admin
+
+@receiver(post_save, sender=settings.AUTH_USER_MODEL)
+def create_auth_token(sender, instance=None, created=False, **kwargs):
+    if created:
+        Token.objects.create(user=instance)
