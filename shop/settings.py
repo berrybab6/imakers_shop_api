@@ -39,12 +39,12 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'account.apps.AccountConfig',
-<<<<<<< HEAD
+
     'vendor',
     'rest_framework.authtoken',
-=======
-    'vendor.apps.VendorConfig',
->>>>>>> 67f15c2e9447a499fca9c0ded0ab5717e0a2f7b3
+
+
+
 
 ]
 
@@ -112,8 +112,8 @@ REST_FRAMEWORK = {
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-<<<<<<< HEAD
-        'NAME': 'shop3',
+
+        'NAME': 'shop4',
 
 
         'USER': 'mekdes',
@@ -121,11 +121,8 @@ DATABASES = {
 
 
 
-=======
-        'NAME': 'shop',
-        'USER': 'postgres',
-        'PASSWORD': 'beth',
->>>>>>> 67f15c2e9447a499fca9c0ded0ab5717e0a2f7b3
+
+
         'HOST': '127.0.0.1',
         'PORT': '5432',
     }
