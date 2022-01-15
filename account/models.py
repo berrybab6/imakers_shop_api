@@ -75,7 +75,7 @@ class User(AbstractUser):
     
     gender = models.CharField(max_length=6,null=True, blank=True)
     profile_url = models.ImageField(upload_to="users")
-
+    business_id = models.ImageField()
     staff = models.BooleanField(default=False)
     admin = models.BooleanField(default=False)
     shop_owner = models.BooleanField(default=False)
@@ -117,6 +117,8 @@ class User(AbstractUser):
     @property
     def is_admin(self):
         return self.admin
+
+
 
 @receiver(post_save, sender=settings.AUTH_USER_MODEL)
 def create_auth_token(sender, instance=None, created=False, **kwargs):

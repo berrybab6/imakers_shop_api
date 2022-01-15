@@ -1,3 +1,18 @@
+from django.shortcuts import render
+
+from rest_framework import generics, permissions, status
+from django.http import JsonResponse
+
+# from vendor.seriliazer import ShopSerializer
+from .models import User
+from django.contrib.auth.hashers import make_password,check_password
+
+from .serializers import UserSerializers
+from django.contrib.auth import login, logout, authenticate
+from rest_framework.response import Response
+# Create your views here.
+
+
 from importlib.metadata import requires
 from django.shortcuts import render
 from django.shortcuts import render, redirect
@@ -38,12 +53,16 @@ class UserCreateView(generics.GenericAPIView):
         phone_number = request.data.get("phone_number","")
         email = request.data.get("email","")
         business_id = request.data.get("business_id", "")
+        shop_name = request.data.get("name","")
+        shop_location = request.data.get("location", "")
+        shop_logo = request.data.get("logo","")
         if customer and shop_owner:
             return JsonResponse({"error":"User cant be Both Customer and Shop Owner"})
         elif shop_owner:
-            if business_id == None:
+            if business_id == None or shop_name==None:
                 return JsonResponse({"error":"Business ID is required for shopowners"})
             else:
+
                 user = User.objects.create_user(username=username,
                                             email = email,
                                             password=password,
@@ -52,11 +71,22 @@ class UserCreateView(generics.GenericAPIView):
                                             is_customer=customer,
                                             phone_number = phone_number,
                                             is_shop_owner=shop_owner)
+                user.save()
+
+                # shop = Shop()
+                # shop.name = shop_name
+                # shop.location = shop_location
+                # shop.logo = shop_logo
+                # shop.user = user 
+                # shop.save()
+
+            # serilize = ShopSerializer(shop)
 
             ser = UserSerializers(user)
             # return JsonResponse(ser.data, safe=False)
+            return JsonResponse({"user":ser.data }, status=status.HTTP_200_OK)
 
-            return JsonResponse(ser.data,safe=False, status=status.HTTP_200_OK)
+            # return JsonResponse({"user":ser.data , "shop":"serilize"}, status=status.HTTP_200_OK)
         elif customer:
             
             user = User.objects.create_user(username=username,
