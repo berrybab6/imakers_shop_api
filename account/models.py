@@ -1,3 +1,4 @@
+from distutils.command.upload import upload
 from pyexpat import model
 from django.db import models
 from django.contrib.auth.models import (AbstractUser, BaseUserManager)
@@ -30,7 +31,7 @@ class Role(models.Model):
 
 class UserManager(BaseUserManager):
 
-    def create_user(self, username, full_name=None, gender=None, profile_url=None, reset_link=None,is_admin=False, is_staff=False,is_customer=False,is_shop_owner=False,business_id=None, password=None, is_active=True,):
+    def create_user(self, username, email,phone_number=None, full_name=None, gender=None, profile_url=None, reset_link=None,is_admin=False, is_staff=False,is_customer=False,is_shop_owner=False,business_id=None, password=None, is_active=True,):
         if not username:
             raise ValueError("User Must have an username")
         if not password:
@@ -45,48 +46,53 @@ class UserManager(BaseUserManager):
         user.business_id = business_id            
         user.reset_link = reset_link
         user.full_name = full_name
+        user.phone_number = phone_number
+        user.email = email
         user.shop_owner = is_shop_owner
         user.staff = is_staff
-        user.customer = is_customer
+        user.customer = is_customer 
         user.admin = is_admin
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, username,full_name=None, password=None, profile_url=None):
+    def create_superuser(self, email, username,full_name=None,phone_number=None, password=None, profile_url=None):
 
-        user = self.create_user(username, full_name=full_name,profile_url=profile_url, is_staff=True,password=password,is_admin=True)
+        user = self.create_user(username, email,full_name=full_name,phone_number=phone_number,profile_url=profile_url, is_staff=True,password=password,is_admin=True)
         return user
     
-    def create_staffuser(self, username, full_name=None, password=None):
-        user = self.create_user(username, full_name=full_name, is_staff=True,password=password)
+    def create_staffuser(self, username,email, full_name=None, password=None):
+        user = self.create_user(username,email, full_name=full_name, is_staff=True,password=password)
         return user
-    def create_shop_owner(self, username, full_name=None, password=None, profile_url=None):
-        user = self.create_user(username, full_name=full_name, password=password,profile_url=profile_url, is_shop_owner=True)
+    def create_shop_owner(self,email, username, phone_number=None, full_name=None, password=None, profile_url=None):
+        user = self.create_user(username, email,phone_number=phone_number,full_name=full_name, password=password,profile_url=profile_url, is_shop_owner=True)
         return user
-    def create_customer(self, email, username, full_name=None,profile_url=None, gender=None, reset_link=None, password=None):
-        user = self.create_user(email, username, full_name=full_name, gender=gender,profile_url=profile_url, reset_link=reset_link, password=password, is_customer=True)
+    def create_customer(self, email, username, phone_number=None,full_name=None,profile_url=None, gender=None, reset_link=None, password=None):
+        user = self.create_user(email, username, phone_number=phone_number,full_name=full_name, gender=gender,profile_url=profile_url, reset_link=reset_link, password=password, is_customer=True)
         return user
 class User(AbstractUser):
     # roles = models.OneToOneField(Role, on_delete=models.CASCADE, null=True)
-    username = models.CharField(unique=True, max_length=100, default=False)
+    username = models.CharField(unique=True, max_length=100)
+    
     gender = models.CharField(max_length=6,null=True, blank=True)
-    profile_url = models.CharField(max_length=255, null=True,default=False,blank=True)
+    profile_url = models.ImageField(upload_to="users")
 
     staff = models.BooleanField(default=False)
     admin = models.BooleanField(default=False)
     shop_owner = models.BooleanField(default=False)
     customer = models.BooleanField(default=False)
-
+    phone_number = models.CharField(max_length=20, blank=True, null=True)
+    email = models.CharField(max_length=100,unique=True,null=False)
     created_At = models.DateTimeField(auto_now_add=True)
     
     full_name = models.CharField(max_length=255, blank=True, null=True)
     reset_link = models.CharField(max_length=255, null=True, blank=True)
     active = models.BooleanField(default=True)
+    is_validated = models.BooleanField(default=False)
     
 
     # comment = models.ForeignKey(Comment, on_delete=models.CASCADE, related_name="user", default=None, null=True, blank=True)
     USERNAME_FIELD = 'username'
-    REQUIRED_FIELDS = []
+    REQUIRED_FIELDS = ['email']
 
     objects = UserManager()
     def __str__(self):
