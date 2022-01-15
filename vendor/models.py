@@ -4,6 +4,7 @@ from itertools import product
 from pyexpat import model
 from tkinter import CASCADE
 from unicodedata import category
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.conf import settings
 
@@ -11,13 +12,14 @@ from django.conf import settings
 class Shop(models.Model):
     name = models.CharField(max_length=200)
     logo = models.CharField(max_length=200)
+    location = models.CharField(max_length=200, default=False)
+    shopOwner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="User",
+                                  default=False, on_delete=models.CASCADE, null=True)
 
-
-class ShopOwner(models.Model):
-    shop = models.ForeignKey(
-        Shop, related_name="Shop", default=False, on_delete=models.CASCADE, null=True)
-    seller = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="ShopOwner",
-                               default=False, on_delete=models.CASCADE, null=True)
+    def clean(self):
+        if self.shopOwner.shop_owner != True:
+            raise ValidationError('can not add customers')
+        return super().clean()
 
 
 class Color(models.Model):
@@ -83,3 +85,17 @@ class Product(models.Model):
         Category, related_name="Category", default=False, on_delete=models.CASCADE, null=True)
     type = models.ForeignKey(
         Type, related_name="Category", default=False, on_delete=models.CASCADE, null=True)
+
+
+
+
+# class ShopOwner(models.Model):
+#     shop = models.ForeignKey(
+#         Shop, related_name="Shop", default=False, on_delete=models.CASCADE, null=True)
+#     seller = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="ShopOwner",
+#                                default=False, on_delete=models.CASCADE, null=True)
+
+#     def clean(self):
+#         if self.seller.shop_owner != True:
+#             raise ValidationError('can not add customers')
+#         return super().clean()
