@@ -46,13 +46,13 @@ class UserCreateView(generics.GenericAPIView):
         #                         {"error":"you are not authorized to add user"},
         #                         status=status.HTTP_401_UNAUTHORIZED)
 
-    def get(self, request):
-        if request.user.admin:
-            user = User.objects.all()
-            if user:
-                ser = UserSerializers(user, many=True)
-                return JsonResponse({"users":ser.data})
-            else:
-                return JsonResponse({"error":"User doesnot exist"}, status=status.HTTP_404_NOT_FOUND)
-        else:
-            return JsonResponse({"error":"User UnAuthorized to view users"}, status=status.HTTP_401_UNAUTHORIZED)
+    # def get(self, request):
+    #     if request.user.admin:
+    #         user = User.objects.all()
+    #         if user:
+    #             ser = UserSerializers(user, many=True)
+    #             return JsonResponse({"users":ser.data})
+    #         else:
+    #             return JsonResponse({"error":"User doesnot exist"}, status=status.HTTP_404_NOT_FOUND)
+    #     else:
+    #         return JsonResponse({"error":"User UnAuthorized to view users"}, status=status.HTTP_401_UNAUTHORIZED)
