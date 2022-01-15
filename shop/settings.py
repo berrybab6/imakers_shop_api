@@ -53,6 +53,7 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'shop.urls'
+AUTH_USER_MODEL = 'account.User'
 
 TEMPLATES = [
     {
@@ -94,8 +95,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'shop',
-        'USER': 'myprojectuser',
-        'PASSWORD': 'password',
+        'USER': 'postgres',
+        'PASSWORD': 'new_password',
         'HOST': '127.0.0.1',
         'PORT': '5432',
     }
