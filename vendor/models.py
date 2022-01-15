@@ -86,7 +86,7 @@ class Product(models.Model):
     type = models.ForeignKey(
         Type, related_name="Category", default=False, on_delete=models.CASCADE, null=True)
 
-
+    # shop = models.ForeignKey("Shop", default=False, on_delete=models.CASCADE, null=True)
 
 
 # class ShopOwner(models.Model):
