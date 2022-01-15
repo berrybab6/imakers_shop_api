@@ -53,6 +53,7 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'shop.urls'
+AUTH_USER_MODEL = 'account.User'
 
 TEMPLATES = [
     {
