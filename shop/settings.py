@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-*6$j)i*1-+hqr^zsb)2yu1h+3nnubb)@t_tk9$oza-(cc(hro^
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+# ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'account.apps.AccountConfig',
     'vendor.apps.VendorConfig',
     'rest_framework.authtoken',
+    'corsheaders',
 
 ]
 
@@ -49,12 +50,17 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 
 ]
-
+ALLOWED_HOSTS = ['*']
+CORS_ORIGIN_ALLOW_ALL = False
+CORS_ORIGIN_WHITELIST = (
+  'http://localhost:3000',
+)
 ROOT_URLCONF = 'shop.urls'
 AUTH_USER_MODEL = 'account.User'
 
@@ -116,9 +122,9 @@ REST_FRAMEWORK = {
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'shop2',
+        'NAME': 'shop',
         'USER': 'postgres',
-        'PASSWORD': 'beth',
+        'PASSWORD': 'new_password',
         'HOST': '127.0.0.1',
         'PORT': '5432',
     }
@@ -155,6 +161,17 @@ USE_L10N = True
 
 USE_TZ = True
 
+
+import os
+STATIC_URL = '/static/'
+MEDIA_URL = '/uploads/'
+# STATICFILES_DIRS  = [
+#     BASE_DIR / 'frontend/static'
+# ]
+# STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+MEDIA_ROOT = os.path.join(BASE_DIR, 'uploads')
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/

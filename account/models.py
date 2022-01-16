@@ -31,7 +31,7 @@ class Role(models.Model):
 
 class UserManager(BaseUserManager):
 
-    def create_user(self, username, email,phone_number=None, full_name=None, gender=None, profile_url=None, reset_link=None,is_admin=False, is_staff=False,is_customer=False,is_shop_owner=False,business_id=None, password=None, is_active=True,):
+    def create_user(self, username, email,phone_number=None, full_name=None, gender=None, profile_url=None, is_validated=False,reset_link=None,is_admin=False, is_staff=False,is_customer=False,is_shop_owner=False,business_id=None, password=None, is_active=True,):
         if not username:
             raise ValueError("User Must have an username")
         if not password:
@@ -48,6 +48,7 @@ class UserManager(BaseUserManager):
         user.full_name = full_name
         user.phone_number = phone_number
         user.email = email
+        user.is_validated = is_validated
         user.shop_owner = is_shop_owner
         user.staff = is_staff
         user.customer = is_customer 
@@ -66,8 +67,8 @@ class UserManager(BaseUserManager):
     def create_shop_owner(self,email, username, phone_number=None, full_name=None, password=None, profile_url=None):
         user = self.create_user(username, email,phone_number=phone_number,full_name=full_name, password=password,profile_url=profile_url, is_shop_owner=True)
         return user
-    def create_customer(self, email, username, phone_number=None,full_name=None,profile_url=None, gender=None, reset_link=None, password=None):
-        user = self.create_user(email, username, phone_number=phone_number,full_name=full_name, gender=gender,profile_url=profile_url, reset_link=reset_link, password=password, is_customer=True)
+    def create_customer(self, email, username, phone_number=None,full_name=None,profile_url=None,is_validated=False, gender=None, reset_link=None, password=None):
+        user = self.create_user(email, username, phone_number=phone_number,full_name=full_name,is_validated=is_validated,gender=gender,profile_url=profile_url, reset_link=reset_link, password=password, is_customer=True)
         return user
 class User(AbstractUser):
     # roles = models.OneToOneField(Role, on_delete=models.CASCADE, null=True)
@@ -75,6 +76,7 @@ class User(AbstractUser):
     
     gender = models.CharField(max_length=6,null=True, blank=True)
     profile_url = models.ImageField(upload_to="users")
+    business_id = models.ImageField(upload_to="owners")
 
     staff = models.BooleanField(default=False)
     admin = models.BooleanField(default=False)
