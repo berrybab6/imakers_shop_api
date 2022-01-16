@@ -5,6 +5,9 @@ from django.contrib.auth.models import (AbstractUser, BaseUserManager)
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.conf import settings
+# from django.conf import settings
+from django.core.mail import send_mail
+
 from rest_framework.authtoken.models import Token
 # Create your models here.
 
@@ -75,7 +78,7 @@ class User(AbstractUser):
     username = models.CharField(unique=True, max_length=100)
     
     gender = models.CharField(max_length=6,null=True, blank=True)
-    profile_url = models.ImageField(upload_to="users")
+    profile_url = models.ImageField(upload_to="users", null=True, blank=True)
     business_id = models.ImageField(upload_to="owners")
 
     staff = models.BooleanField(default=False)
@@ -119,6 +122,38 @@ class User(AbstractUser):
     @property
     def is_admin(self):
         return self.admin
+    # def save(self, *args, **kwargs):
+    #     if self.pk and self.is_validated==True:
+    #     # send mail here
+    #         subject = 'welcome to Abysinnia world'
+    #         message = f'Hi {self.username}, thank you for registering in Abysinia Shop.'
+    #         email_from = settings.EMAIL_HOST_USER
+    #         recipient_list = [self.email, ]
+    #         send_mail( subject, message, email_from, recipient_list )
+    
+    #     return super().save(*args, **kwargs)
+# binding sinal:
+@receiver(post_save, sender=User)
+# def send_user_email(sender, instance=None, **kwargs):
+def send_mail_to_subs(sender, instance, created=False, **kwargs):
+    
+    if created:
+  
+        # for mysub in instance.blog.subscribers.all():
+        email = instance.email
+        is_validated = instance.is_validated
+        if is_validated==True :
+        # send mail here
+            subject = 'welcome to Abysinnia world'
+            message = f'Hi {instance.username}, thank you for registering in Abysinia Shop.'
+            email_from = settings.EMAIL_HOST_USER
+            recipient_list = [email, ]
+            send_mail( subject, message, email_from, recipient_list )
+        else:
+            print("HELOOOOOOOOOOOO")
+    else:
+        return       
+        
 
 @receiver(post_save, sender=settings.AUTH_USER_MODEL)
 def create_auth_token(sender, instance=None, created=False, **kwargs):

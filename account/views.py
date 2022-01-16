@@ -5,6 +5,9 @@ from django.contrib.auth import login, logout, authenticate
 from django.http import JsonResponse
 from vendor.models import Shop
 
+from django.conf import settings
+from django.core.mail import send_mail
+
 from vendor.seriliazer import ShopSerializer
 # from rest_framework.decorators import action
 from .models import User
@@ -89,7 +92,8 @@ class UserCreateView(generics.GenericAPIView):
         shop_owner = request.data.get("shop_owner", False)
         full_name = request.data.get("full_name", "")
         phone_number = request.data.get("phone_number","")
-        email = request.data.get("email","")
+        email = request.data.get("email")
+        
         profile_url = request.data.get("profile_url",None)
         business_id = request.data.get("business_id", None)
 
@@ -97,38 +101,14 @@ class UserCreateView(generics.GenericAPIView):
         name = request.data.get("name","")
         location = request.data.get("location", "")
         logo = request.data.get("logo", None)
-        if customer==True and shop_owner==True:
-            return JsonResponse({"error":"User cant be Both Customer and Shop Owner"})
-        elif shop_owner==True:
-            if business_id == None:
-                return JsonResponse({"error":"Business ID is required for shopowners"})
-            else:
-                
-                user = User.objects.create_user(username=username,
-                                            email = email,
-                                            password=password,
-                                            full_name=full_name,
-                                            business_id=business_id,
-                                            profile_url=profile_url,
-                                            is_customer=customer,
-                                            phone_number = phone_number,
-                                            is_shop_owner=shop_owner)
-            user.save()
-
-            shop = Shop()
-            shop.name = name
-            shop.location = location
-            shop.logo = logo
-            shop.shopOwner = user
-            
-            ser = UserSerializers(user)
-
-            # return JsonResponse(ser.data, safe=False)
-
-            return JsonResponse(ser.data,safe=False, status=status.HTTP_200_OK)
-        elif customer:
-            
-            user = User.objects.create_user(username=username,
+        if not email or not username or not password:
+            return JsonResponse({"error":"User cant be Fields can't be Empty "})
+        else:
+            if customer:
+                if shop_owner:
+                    return JsonResponse({"error":"Users can't be both shop owner and Customer"})
+                else:
+                    user = User.objects.create_user(username=username,
                                         email = email,
                                         password=password,
                                         full_name=full_name,
@@ -137,13 +117,41 @@ class UserCreateView(generics.GenericAPIView):
                                         phone_number = phone_number,
                                         is_shop_owner=shop_owner)
 
-            ser = UserSerializers(user)
-            # return JsonResponse(ser.data, safe=False)
+                    ser = UserSerializers(user)
+                    # return JsonResponse(ser.data, safe=False)
+                    subject = 'welcome to Abysinnia world'
+                    message = f'Hi {user.username}, thank you for registering in Abysinia Shop.'
+                    email_from = settings.EMAIL_HOST_USER
+                    recipient_list = [user.email, ]
+                    send_mail( subject, message, email_from, recipient_list )
+                    return JsonResponse(ser.data,safe=False, status=status.HTTP_200_OK)
+            elif shop_owner:
+                if business_id ==None:
+                    return JsonResponse({"error":"Business ID is required for shopowners"})
+                else:
+                    print("business_id",business_id)
+                    user = User.objects.create_user(username=username,
+                                                email = email,
+                                                password=password,
+                                                full_name=full_name,
+                                                business_id=business_id,
+                                                profile_url=profile_url,
+                                                is_customer=customer,
+                                                phone_number = phone_number,
+                                                is_shop_owner=shop_owner)
+                    user.save()
 
-            return JsonResponse(ser.data,safe=False, status=status.HTTP_200_OK)
-        
-        else:
-            return JsonResponse({"error":"Please choose one role"})
+                    # shop = Shop()
+                    # shop.name = name
+                    # shop.location = location
+                    # shop.logo = logo
+                    # shop.shopOwner = user
+                
+                    ser = UserSerializers(user)
+
+                    return JsonResponse(ser.data, safe=False)
+            else: 
+                return JsonResponse({"error":"Please role must be either Customer or Shop Owner"})
 
 
 class GetAllUserView(generics.GenericAPIView):
